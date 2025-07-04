@@ -5,14 +5,21 @@ import { format } from 'date-fns'
 function App() {
   const [actions, setActions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const fetchActions = async () => {
     try {
-      const response = await axios.get('https://0222-2409-40e4-108a-f119-4cbd-96d-1980-abf3.ngrok-free.app/api/actions')
-      setActions(response.data)
+      setLoading(true)
+      const response = await axios.get('http://0222-2409-40e4-108a-f119-4cbd-96d-1980-abf3.ngrok-free.app/api/actions')
+      // Ensure we always have an array, even if response.data is null/undefined
+      setActions(Array.isArray(response.data) ? response.data : [])
+      setError(null)
+    } catch (err) {
+      console.error('Error fetching actions:', err)
+      setError('Failed to load actions')
+      setActions([]) // Reset to empty array on error
+    } finally {
       setLoading(false)
-    } catch (error) {
-      console.error('Error fetching actions:', error)
     }
   }
 
@@ -41,6 +48,7 @@ function App() {
   return (
     <div className="container">
       <h1>GitHub Actions Monitor</h1>
+      {error && <p className="error">{error}</p>}
       {loading ? (
         <p>Loading...</p>
       ) : (
