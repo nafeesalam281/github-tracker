@@ -25,7 +25,7 @@ function App() {
         📦 GitHub Activity Logs
       </h1>
       <p style={{ fontSize: "1rem", color: "#555" }}>
-        This page shows the latest GitHub activity logs from the backend.
+        This page shows the latest GitHub activity logs from the backend test.
       </p>
       <ul>
         {events.map((msg, idx) => (
