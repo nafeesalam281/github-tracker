@@ -10,7 +10,7 @@ function App() {
   const fetchActions = async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://0222-2409-40e4-108a-f119-4cbd-96d-1980-abf3.ngrok-free.app/api/actions')
+      const response = await axios.get('http://localhost:5000/api/actions')
       // Ensure we always have an array, even if response.data is null/undefined
       setActions(Array.isArray(response.data) ? response.data : [])
       setError(null)
