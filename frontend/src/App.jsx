@@ -1,39 +1,63 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { format } from 'date-fns'
 
 function App() {
-  const [events, setEvents] = useState([]);
+  const [actions, setActions] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchActions = async () => {
+    try {
+      const response = await axios.get('https://0222-2409-40e4-108a-f119-4cbd-96d-1980-abf3.ngrok-free.app/api/actions')
+      setActions(response.data)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching actions:', error)
+    }
+  }
 
   useEffect(() => {
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 15000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchActions()
+    const interval = setInterval(fetchActions, 15000)
+    return () => clearInterval(interval)
+  }, [])
 
-  const fetchEvents = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/events");
-      setEvents(res.data);
-    } catch (err) {
-      console.error(err);
+  const formatActionMessage = (action) => {
+    const date = new Date(action.timestamp)
+    const formattedDate = format(date, "do MMMM yyyy - h:mm a 'UTC'")
+
+    switch(action.action) {
+      case 'PUSH':
+        return `${action.author} pushed to ${action.to_branch} on ${formattedDate}`
+      case 'PULL_REQUEST':
+        return `${action.author} submitted a pull request from ${action.from_branch} to ${action.to_branch} on ${formattedDate}`
+      case 'MERGE':
+        return `${action.author} merged branch ${action.from_branch} to ${action.to_branch} on ${formattedDate}`
+      default:
+        return ''
     }
-  };
+  }
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "monospace" }}>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-        📦 GitHub Activity Logs
-      </h1>
-      <p style={{ fontSize: "1rem", color: "#555" }}>
-        This page shows the latest GitHub activity logs from the backend test.
-      </p>
-      <ul>
-        {events.map((msg, idx) => (
-          <li key={idx}>{msg}</li>
-        ))}
-      </ul>
+    <div className="container">
+      <h1>GitHub Actions Monitor</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="actions-list">
+          {actions.length === 0 ? (
+            <p>No actions recorded yet</p>
+          ) : (
+            actions.map((action) => (
+              <div key={action._id} className="action-item">
+                <p>{formatActionMessage(action)}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
